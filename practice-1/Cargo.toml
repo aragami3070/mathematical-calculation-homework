@@ -1,0 +1,9 @@
+[package]
+name = "practice-1"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+ndarray-linalg = { version = "0.17.0", features = ["openblas"] }
+ndarray-interp = "0.5.0"
+ndarray = "0.16.1"
