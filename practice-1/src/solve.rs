@@ -1,7 +1,7 @@
 use ndarray::{Array, Array2, ArrayBase, Axis, Dim, OwnedRepr};
 use ndarray_linalg::Solve;
 
-fn create_matrix(x_vec: Vec<f64>) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>> {
+fn create_matrix(x_vec: &Vec<f64>) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>> {
     let x_len = x_vec.len();
 
     let mut matrix = Array2::<f64>::default((x_len, x_len));
@@ -16,4 +16,18 @@ fn create_matrix(x_vec: Vec<f64>) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>> 
     }
 
     matrix
+}
+
+fn solve_slay(x_vec: Vec<f64>, f_vec: Vec<f64>) -> Vec<f64> {
+    let matrix = create_matrix(&x_vec);
+
+    // Заполняем матрицу СЛАУ (правая часть матрицы)
+    let f_column = Array::from_vec(f_vec.clone());
+
+    // Решение системы
+    matrix
+        .solve_into(f_column)
+        .expect("Решение не найдено")
+        .into_iter()
+        .collect()
 }
