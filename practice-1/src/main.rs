@@ -1,71 +1,21 @@
 use std::process;
 
-use ndarray::{Array, Array2, Axis};
-use ndarray_linalg::Solve;
 
 mod file_works;
+mod solve;
 
 fn main() {
     // Считываем таблицу из файла
     let (x_vec, f_vec) = match file_works::read("assets/input.txt") {
         Ok(pair) => pair,
         Err(err) => {
-            eprintln!("Error: {}", err);
+            eprintln!("Error: {err}");
             process::exit(1);
         }
     };
 
-    let x_len = x_vec.len();
+	let (res_x, res_f) = solve::vandermonde_interpolation(x_vec, f_vec);
 
-    let mut matrix = Array2::<f64>::default((x_len, x_len));
-    // Заполняем матрицу СЛАУ (левая часть матрицы)
-    for (index, mut row) in matrix.axis_iter_mut(Axis(0)).enumerate() {
-        let mut x_degree = 1.0;
-        let x_value = x_vec[index];
-        for col in row.iter_mut() {
-            *col = x_degree;
-            x_degree *= x_value;
-        }
-    }
-
-    // Заполняем матрицу СЛАУ (правая часть матрицы)
-    let f_column = Array::from_vec(f_vec.clone());
-
-    // Решение системы
-    let slay_solve: Vec<f64> = matrix
-        .solve_into(f_column)
-        .expect("Решение не найдено")
-        .into_iter()
-        .collect();
-
-    let mut prev_x = 0.0;
-    let mut res_x_vec: Vec<f64> = Vec::new();
-    let mut res_f_vec: Vec<f64> = Vec::new();
-
-	// Находим промежуточные решения
-    for (index, current_x) in x_vec.iter().enumerate() {
-        if index == 0 {
-            res_x_vec.push(*current_x);
-            res_f_vec.push(f_vec[index]);
-            prev_x = *current_x;
-            continue;
-        }
-
-        let mid_x = (prev_x + current_x) / 2.0;
-		let mut new_mid_x = 1.0;
-        let mut new_mid_f = 0.0;
-        for coefficients in slay_solve.iter().rev() {
-            new_mid_f += coefficients * new_mid_x;
-			new_mid_x *= mid_x;
-        }
-
-        res_x_vec.push(mid_x);
-        res_f_vec.push(new_mid_f);
-
-        res_x_vec.push(*current_x);
-        res_f_vec.push(f_vec[index]);
-    }
-
-	println!("{res_x_vec:?}");
-	println!("{res_f_vec:?}")
+	println!("{res_x:?}");
+	println!("{res_f:?}");
 }
