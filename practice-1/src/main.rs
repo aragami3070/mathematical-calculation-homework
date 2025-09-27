@@ -1,5 +1,6 @@
 use std::process;
 
+use crate::file_works::write;
 
 mod file_works;
 mod solve;
@@ -14,8 +15,14 @@ fn main() {
         }
     };
 
-	let (res_x, res_f) = solve::vandermonde_interpolation(x_vec, f_vec);
+    let (res_x, res_f) = solve::vandermonde_interpolation(x_vec, f_vec);
 
-	println!("{res_x:?}");
-	println!("{res_f:?}");
+    if let Err(err) = write("assets/output.txt", &res_x, &res_f) {
+        eprintln!("Error: {err}");
+        process::exit(1);
+    }
+
+	println!("Результат:");
+    println!("{res_x:?}");
+    println!("{res_f:?}")
 }
