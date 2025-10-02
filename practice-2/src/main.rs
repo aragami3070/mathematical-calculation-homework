@@ -10,6 +10,7 @@ fn main() {
         .map(|x| x.trim().parse::<f64>().expect("Failed parse x_list"))
         .collect();
 
+    input.clear();
     io::stdin()
         .read_line(&mut input)
         .expect("Failed input f_list");
@@ -18,25 +19,27 @@ fn main() {
         .map(|f| f.trim().parse::<f64>().expect("Failed parse f_list"))
         .collect();
 
-	let mut numerator = 1.0;
-	let mut denominator = 1.0;
+    let mut numerator = 1.0;
+    let mut denominator = 1.0;
 
-	let mut result: Vec<f64> = Vec::new();
+    let mut result: Vec<f64> = Vec::new();
 
     for j in 0..x_list.len() {
-		let mut sum = 0.0;
+        let mut sum = 0.0;
         for k in 0..f_list.len() {
             let f_k = f_list[k];
             for i in 0..x_list.len() {
                 if k != i {
-					numerator *= f_k * (x_list[j] - x_list[i]);
-					denominator *= x_list[k] - x_list[i];
+                    numerator *= x_list[j] - x_list[i];
+                    denominator *= x_list[k] - x_list[i];
                 }
-			}
-			sum += numerator / denominator;
+            }
+            sum += f_k * numerator / denominator;
+            numerator = 1.0;
+            denominator = 1.0;
         }
-		result.push(sum);
+        result.push(sum);
     }
 
-	println!("{result:?}")
+    println!("{result:?}")
 }
