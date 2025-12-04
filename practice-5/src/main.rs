@@ -56,15 +56,12 @@ fn main() {
 
     // vector b = diagonal of A
     let n = a.shape()[0];
-    let mut b = Array1::<f64>::zeros(n);
+    let mut b = Array1::<f64>::ones(n);
     println!("\nКолонка b:");
     for i in 0..n {
         b[i] = a[[i, i]];
         println!("[{}]", b[i]);
     }
-
-    // b = A * b (dot product)
-    b = a.dot(&b);
 
     let (a_tmp, b_tmp) = forward_elimination(a, b);
     println!("Матрица после прямого прохода:");
