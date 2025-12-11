@@ -613,12 +613,68 @@ $
 *Код*
 
 ```rust
+use ndarray::{Array1, Array2, array};
+
+fn main() {
+    // Исходные данные
+    let a: Array2<f64> = array![
+        [18.0, 0.18, 0.18, 0.18, 0.18],
+        [0.19, 19.0, 0.19, 0.19, 0.19],
+        [0.20, 0.20, 20.0, 0.20, 0.20],
+        [0.21, 0.21, 0.21, 21.0, 0.21],
+        [0.22, 0.22, 0.22, 0.22, 22.0],
+    ];
+
+    // Вычисляем вектор b
+    let n = a.shape()[0];
+    let mut b = Array1::<f64>::zeros(n);
+    for i in 0..n {
+        b[i] = a[[i, i]];
+    }
+
+    // b = dot(A, b) in column vector form
+    let b = a.dot(&b);
+
+    println!("Матрица A:");
+    println!("{:?}", a);
+    println!("Столбец b:");
+    println!("{:?}", b);
+
+    let mut q = Array1::<f64>::zeros(n);
+    let mut p = Array1::<f64>::zeros(n - 1);
+
+    p[0] = -a[[0, 1]] / a[[0, 0]];
+    q[0] = b[0] / a[[0, 0]];
+
+    println!("Прямая прогонка");
+    println!("Список Pi и Qi");
+
+
+```
+```rust
+    for i in 1..p.len() {
+        p[i] = a[[i, i + 1]] / (-a[[i, i]] - a[[i, i - 1]] * p[i - 1]);
+    }
+    for i in 1..q.len() {
+        q[i] = (a[[i, i - 1]] * q[i - 1] - b[i]) / (-a[[i, i]] - a[[i, i - 1]] * p[i - 1]);
+    }
+    println!("{:?},\n{:?}", p, q);
+    println!("Обратная прогонка");
+    let mut x = Array1::<f64>::zeros(n);
+    x[n - 1] = q[n - 1];
+    println!("x 5 = {}", x[n - 1]);
+
+    for i in (0..n - 1).rev() {
+        x[i] = p[i] * x[i + 1] + q[i];
+        println!("x {} = {}", i + 1, x[i]);
+    }
+
+    println!("{:?}", x);
+}
 ```
 
 *Результат*
-
-```
-```
+#image("images/09.png")
 
 = Метод простой итерации
 
@@ -650,6 +706,76 @@ $
 *Код*
 
 ```rust
+use ndarray::{Array1, arr2};
+use ndarray_linalg::Determinant;
+use std::f64;
+
+fn norm_stop(xk: &Array1<f64>, xkp1: &Array1<f64>, epsilon: f64) -> bool {
+    xk.iter()
+        .zip(xkp1.iter())
+        .map(|(a, b)| (a - b).abs())
+        .fold(0. / 0., f64::max)
+        < epsilon
+}
+
+fn main() {
+    let a = arr2(&[
+        [18.0, 0.18, 0.18, 0.18, 0.18],
+        [0.19, 19.0, 0.19, 0.19, 0.19],
+        [0.20, 0.20, 20.0, 0.20, 0.20],
+        [0.21, 0.21, 0.21, 21.0, 0.21],
+        [0.22, 0.22, 0.22, 0.22, 22.0],
+    ]);
+    println!("Матрица A:");
+    println!("{:?}", a);
+    let det = a.det().expect("Failed to compute determinant");
+    println!("Определитель матрицы A: {}", det);
+
+    let b_diag: Array1<f64> = a.diag().to_owned();
+    let b = a.dot(&b_diag);
+    println!("Столбец b:");
+    println!("{:?}", b);
+```
+```rust
+    let n = a.nrows();
+    let mut alpha = a.clone();
+    for i in 0..n {
+        for j in 0..n {
+            if i == j {
+                alpha[(i, j)] = 0.0;
+            } else {
+                alpha[(i, j)] = -a[(i, j)] / a[(i, i)];
+            }
+        }
+    }
+
+    println!("Матрица alpha:");
+    println!("{:?}", alpha);
+
+    let mut beta = b.clone();
+    for i in 0..n {
+        beta[i] = b[i] / a[(i, i)];
+    }
+
+    println!("Столбец beta:");
+    println!("{:?}", beta);
+
+    let epsilon = 1e-9;
+    println!("Считаем до точности epsilon= {}", epsilon);
+
+    let mut xk = Array1::<f64>::zeros(n);
+
+    println!("x^(0) = {:?}", xk);
+
+    for i in 0..17 {
+        let xkp1 = alpha.dot(&xk) + &beta;
+        println!("x^({})= {:?}", i + 1, xkp1);
+        if norm_stop(&xk, &xkp1, epsilon) {
+            break;
+        }
+        xk = xkp1;
+    }
+}
 ```
 
 *Результат*
