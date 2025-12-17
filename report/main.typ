@@ -37,53 +37,39 @@
 
 ```rust
 use std::{error::Error, fs, path::Path};
-
 type X = f64;
 type F = f64;
-
 pub fn read(path: &str) -> Result<(Vec<X>, Vec<F>), Box<dyn Error>> {
     let file_content = fs::read_to_string(Path::new(path))?;
-
     let split_content = file_content.split('\n').collect::<Vec<&str>>();
-
     let x_vec: Vec<X> = split_content[0]
         .split_whitespace()
         .map(|s| s.parse::<X>())
         .collect::<Result<_, _>>()?;
-
     let f_vec: Vec<X> = split_content[1]
         .split_whitespace()
         .map(|s| s.parse::<X>())
         .collect::<Result<_, _>>()?;
-
     Ok((x_vec, f_vec))
 }
-
 pub fn write(path: &str, x_vec: &[f64], f_vec: &[f64]) -> Result<(), Box<dyn Error>>{
 	let mut x_str = "X: ".to_string();
 	for x in x_vec {
 		x_str.push_str(&x.to_string());
 	}
 	fs::write(path, x_str)?;
-
 	let mut f_str = "F: ".to_string();
 	for f in f_vec {
 		f_str.push_str(&f.to_string());
 		f_str.push(' ');
 	}
 	fs::write(path, f_str)?;
-
 	Ok(())
 }
-
-```
-```rust
 use ndarray::{Array, Array2, ArrayBase, Axis, Dim, OwnedRepr};
 use ndarray_linalg::Solve;
-
 fn create_matrix(x_vec: &[f64]) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>> {
     let x_len = x_vec.len();
-
     let mut matrix = Array2::<f64>::default((x_len, x_len));
     // Заполняем матрицу СЛАУ (левая часть матрицы)
     for (index, mut row) in matrix.axis_iter_mut(Axis(0)).enumerate() {
@@ -94,16 +80,14 @@ fn create_matrix(x_vec: &[f64]) -> ArrayBase<OwnedRepr<f64>, Dim<[usize; 2]>> {
             x_degree *= x_value;
         }
     }
-
     matrix
 }
-
 fn solve_slay(x_vec: &[f64], f_vec: Vec<f64>) -> Vec<f64> {
     let matrix = create_matrix(x_vec);
-
     // Заполняем матрицу СЛАУ (правая часть матрицы)
     let f_column = Array::from_vec(f_vec);
-
+```
+```rust
     // Решение системы
     matrix
         .solve_into(f_column)
@@ -111,14 +95,11 @@ fn solve_slay(x_vec: &[f64], f_vec: Vec<f64>) -> Vec<f64> {
         .into_iter()
         .collect()
 }
-
 pub fn vandermonde_interpolation(x_vec: Vec<f64>, f_vec: Vec<f64>) -> (Vec<f64>, Vec<f64>) {
     let slay_solved = solve_slay(&x_vec, f_vec.clone());
-
     let mut prev_x = 0.0;
     let mut res_x_vec: Vec<f64> = Vec::new();
     let mut res_f_vec: Vec<f64> = Vec::new();
-
     // Находим промежуточные решения
     for (index, current_x) in x_vec.iter().enumerate() {
         if index == 0 {
@@ -127,7 +108,6 @@ pub fn vandermonde_interpolation(x_vec: Vec<f64>, f_vec: Vec<f64>) -> (Vec<f64>,
             prev_x = *current_x;
             continue;
         }
-
         let mid_x = (prev_x + current_x) / 2.0;
         let mut new_mid_x = 1.0;
         let mut new_mid_f = 0.0;
@@ -135,27 +115,18 @@ pub fn vandermonde_interpolation(x_vec: Vec<f64>, f_vec: Vec<f64>) -> (Vec<f64>,
             new_mid_f += coefficients * new_mid_x;
             new_mid_x *= mid_x;
         }
-
-		prev_x = *current_x;
-
+        prev_x = *current_x;
         res_x_vec.push(mid_x);
         res_f_vec.push(new_mid_f);
-
         res_x_vec.push(*current_x);
         res_f_vec.push(f_vec[index]);
     }
-
     (res_x_vec, res_f_vec)
 }
-```
-```rust
 use std::process;
-
 use crate::file_works::write;
-
 mod file_works;
 mod solve;
-
 fn main() {
     // Считываем таблицу из файла
     let (x_vec, f_vec) = match file_works::read("assets/input.txt") {
@@ -165,20 +136,17 @@ fn main() {
             process::exit(1);
         }
     };
-
     let (res_x, res_f) = solve::vandermonde_interpolation(x_vec, f_vec);
-
     if let Err(err) = write("assets/output.txt", &res_x, &res_f) {
         eprintln!("Error: {err}");
         process::exit(1);
     }
-
-	println!("Результат:");
+    println!("Результат:");
     println!("{res_x:?}");
     println!("{res_f:?}")
 }
 ```
-
+#pagebreak()
 *Результат*
 
 Входные
@@ -197,7 +165,6 @@ fn main() {
 ```rust
 use itertools::Itertools;
 use std::io;
-
 fn main() {
     println!("Введите x:");
     let mut input = String::new();
@@ -208,7 +175,6 @@ fn main() {
         .split_whitespace()
         .map(|x| x.trim().parse::<f64>().expect("Failed parse x_list"))
         .collect();
-
     println!("Введите f:");
     input.clear();
     io::stdin()
@@ -218,7 +184,6 @@ fn main() {
         .split_whitespace()
         .map(|f| f.trim().parse::<f64>().expect("Failed parse f_list"))
         .collect();
-
     let x_extended_list: Vec<f64> = x_list
         .iter()
         .tuple_windows()
@@ -227,27 +192,25 @@ fn main() {
         .collect();
     let mut numerator = 1.0;
     let mut denominator = 1.0;
-
     let mut result: Vec<f64> = Vec::new();
     for j in 0..x_extended_list.len() {
         let mut sum = 0.0;
         for k in 0..f_list.len() {
             let f_k = f_list[k];
+```
+```rust
             for i in 0..x_list.len() {
                 if k != i {
                     numerator *= x_extended_list[j] - x_list[i];
                     denominator *= x_list[k] - x_list[i];
                 }
             }
-```
-```rust
             sum += f_k * numerator / denominator;
             numerator = 1.0;
             denominator = 1.0;
         }
         result.push(sum);
     }
-
     println!("Результат:");
     println!("x: {x_extended_list:?}");
     println!("f: {result:?}")
@@ -255,7 +218,7 @@ fn main() {
 ```
 
 *Результат*
-#image("images/03.png")
+#image("images/03.png", width: 60%)
 
 = Интерполяционный многочлен в форме Ньютона
 
@@ -269,36 +232,29 @@ fn main() {
 ```rust
 use itertools::Itertools;
 use std::io;
-
 fn main() {
     let mut input = String::new();
-
     println!("Введите x:");
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Failed input x_list");
+    io::stdin().read_line(&mut input).expect("Failed input x_list");
     let x_list: Vec<f64> = input
         .split_whitespace()
         .map(|x| x.trim().parse::<f64>().expect("Failed parse x_list"))
         .collect();
-
     println!("Введите f:");
     input.clear();
-    io::stdin()
-        .read_line(&mut input)
-        .expect("Failed input f_list");
-
+    io::stdin() .read_line(&mut input) .expect("Failed input f_list");
     let f_list: Vec<f64> = input
         .split_whitespace()
         .map(|f| f.trim().parse::<f64>().expect("Failed parse f_list"))
         .collect();
-
     let x_extended_list: Vec<f64> = x_list
         .iter()
         .tuple_windows()
         .flat_map(|(x_0, x_1)| [*x_0, (x_0 + x_1) / 2.0])
         .chain(x_list.last().copied())
         .collect();
+```
+```rust
     let mut result: Vec<f64> = Vec::new();
     let mut coefficients: Vec<Vec<f64>> = Vec::new();
     let f_list_len = f_list.len();
@@ -315,8 +271,6 @@ fn main() {
         }
         coefficients.push(new_vec);
     }
-```
-```rust
     for x in x_extended_list.clone().iter() {
         let mut end_ind = 0;
         let mut sum = 0.0;
@@ -333,7 +287,6 @@ fn main() {
         }
         result.push(sum);
     }
-
     println!("Таблица входных:");
     println!("x: {x_extended_list:?}");
     println!("f: {result:?}");
@@ -344,39 +297,32 @@ fn main() {
 ```
 
 *Результат*
-#image("images/04.png")
-
+#image("images/04.png", width: 55%)
 
 = Интерполяция кубическими сплайнами
 
 *Условие*
 
-Необходимо построить интерполяционный многочлен с помощью кубических сплайнов
-(алгебраических многочленов третьей степени, где сплайн --- фрагмент, отрезок чего-либо).
+По данным интерполяции из предыдущего задания построить кусочно-непрерывную
+склейку кубических сплайнов
 
-
+#pagebreak()
 *Код*
 
 ```rust
 use ndarray_linalg::Solve;
-
 /// создает матрицу для нахождения коэффициентов кубических сплайнов
 fn create_spline_matrix(x: &Array1<f64>, f: &Array1<f64>) -> (Array2<f64>, Array1<f64>) {
     let n = x.len() - 1; // количество интервалов
     let size = 4 * n;
     let h = x[1] - x[0];
-
     let mut a = Array2::<f64>::zeros((size, size));
     let mut b = Array1::<f64>::zeros(size);
-
-    // s_i(x_i) = f_i
     for i in 0..n {
         let row = i;
         a[[row, 4 * i]] = 1.0; // a_i
         b[row] = f[i];
     }
-
-    // s_i(x_{i+1}) = f_{i+1}
     for i in 0..n {
         let row = n + i;
         a[[row, 4 * i]] = 1.0;
@@ -385,39 +331,28 @@ fn create_spline_matrix(x: &Array1<f64>, f: &Array1<f64>) -> (Array2<f64>, Array
         a[[row, 4 * i + 3]] = h.powi(3);
         b[row] = f[i + 1];
     }
-
-    // s'_i(x_{i+1}) = s'_{i+1}(x_{i+1})
     for i in 0..(n - 1) {
         let row = 2 * n + i;
-
         a[[row, 4 * i + 1]] = 1.0;
         a[[row, 4 * i + 2]] = 2.0 * h;
         a[[row, 4 * i + 3]] = 3.0 * h.powi(2);
         a[[row, 4 * (i + 1) + 1]] = -1.0;
         b[row] = 0.0;
     }
-```
-```rust
-    // s''_i(x_{i+1}) = s''_{i+1}(x_{i+1})
     for i in 0..(n - 1) {
         let row = 3 * n - 1 + i;
-
         a[[row, 4 * i + 2]] = 2.0;
         a[[row, 4 * i + 3]] = 6.0 * h;
         a[[row, 4 * (i + 1) + 2]] = -2.0;
         b[row] = 0.0;
     }
-    // s''_0(x_0) = 0 и s''_{n-1}(x_n) = 0
     let row1 = 4 * n - 2;
     a[[row1, 2]] = 2.0; // 2*c_0
-
     let row2 = 4 * n - 1;
     a[[row2, 4 * (n - 1) + 2]] = 2.0;
     a[[row2, 4 * (n - 1) + 3]] = 6.0 * h;
-
     (a, b)
 }
-
 /// решает систему уравнений
 fn solve_spline_coefficients(
     x: &Array1<f64>,
@@ -428,15 +363,14 @@ fn solve_spline_coefficients(
     let n = x.len() - 1;
     coeffs.into_shape_clone((n, 4)).expect("Reshape error")
 }
-
+```
+```rust
 fn main() {
     let x = array![0.0, 1.0, 2.0, 3.0];
     let f = array![1.0, 2.0, 9.0, 28.0];
-
     let (a, b) = create_spline_matrix(&x, &f);
     let coefficients = solve_spline_coefficients(&x, &f);
     let size = 4 * (x.len() - 1);
-
     println!("Матрица системы {}x{}:", size, size);
     for (i, row) in a.axis_iter(ndarray::Axis(0)).enumerate() {
         print!("eq_{:<2}: [", i);
@@ -449,8 +383,6 @@ fn main() {
     for (i, val) in b.iter().enumerate() {
         println!("eq_{:<2}: {:.3}", i, val);
     }
-```
-```rust
     println!("\nКоэффициенты сплайнов (по строкам: [a_i, b_i, c_i, d_i] для каждого интервала):");
     for (i, coeff_row) in coefficients.axis_iter(ndarray::Axis(0)).enumerate() {
         println!(
@@ -458,24 +390,20 @@ fn main() {
             i, coeff_row[0], coeff_row[1], coeff_row[2], coeff_row[3]
         );
     }
-
     println!("\nРазмер матрицы: {:?}", a.dim());
     println!("Количество интервалов: {}", x.len() - 1);
-
     println!("Сплайны: ");
     println!("S_{}: {}", x[0], x[0]);
     for (i, coeff_row) in coefficients.axis_iter(ndarray::Axis(0)).enumerate() {
         let xi = x[i];
         let xip1 = x[i + 1];
         let dx = xip1 - xi;
-
         let t_mid = dx / 2.0;
         let s_mid = coeff_row[0]
             + coeff_row[1] * t_mid
             + coeff_row[2] * t_mid.powi(2)
             + coeff_row[3] * t_mid.powi(3);
         println!("S_{:.1}: {:.3}", xi + t_mid, s_mid);
-
         let t_end = dx;
         let s_end = coeff_row[0]
             + coeff_row[1] * t_end
@@ -486,17 +414,14 @@ fn main() {
 }
 ```
 
+#pagebreak()
 *Результат*
-#image("images/05.png")
-#image("images/06.png")
-
+#image("images/05.png", width: 80%)
 = Метод Гаусса решения СЛАУ
 
 *Условие*
 
 Решить следующую СЛАУ методом Гаусса
-Метод Гаусса должен решать уравнения вида $A x = b$, где $A$ - матрица.
-Для упрощения тестирования матрица $А$ примет вид:
 
 $
   A = mat(18, 0.18, 0.18, 0.18, 0.18;
@@ -508,11 +433,9 @@ $
 $
 
 *Код*
-
 ```rust
 use ndarray::{Array1, Array2, s};
 use ndarray_linalg::Determinant;
-
 fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, Array1<f64>) {
     let n = b.len();
     for k in 0..(n - 1) {
@@ -521,6 +444,8 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
                 let factor = a[[i, k]] / a[[k, k]];
                 for col in (k + 1)..n {
                     let a_ik = a[[i, k]];
+```
+```rust
                     let a_kk = a[[k, k]];
                     let factor = a_ik / a_kk;
                     a[[i, col]] -= factor * a[[k, col]];
@@ -532,7 +457,6 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
     }
     (a, b)
 }
-
 fn backward_substitution(u: &Array2<f64>, b: &Array1<f64>) -> Array1<f64> {
     let n = b.len();
     let mut x = Array1::<f64>::zeros(n);
@@ -546,7 +470,6 @@ fn backward_substitution(u: &Array2<f64>, b: &Array1<f64>) -> Array1<f64> {
     }
     x
 }
-
 fn main() {
     let a = Array2::<f64>::from_shape_vec(
         (5, 5),
@@ -559,12 +482,9 @@ fn main() {
         ],
     )
     .unwrap();
-```
-```rust
     println!("1) Матрица A:\n{:?}", a);
     let det = a.det().unwrap();
     println!("Определитель матрицы A = {}", det);
-
     let n = a.shape()[0];
     let mut b = Array1::<f64>::ones(n);
     println!("\nКолонка b:");
@@ -572,19 +492,15 @@ fn main() {
         b[i] = a[[i, i]];
         println!("[{}]", b[i]);
     }
-
     let (a_tmp, b_tmp) = forward_elimination(a, b);
     println!("Матрица после прямого прохода:");
     println!("{:?}", a_tmp);
-
     let solution = backward_substitution(&a_tmp, &b_tmp);
-
     println!("Решение (A|b) методом Гаусса");
     println!("Вектор решения после обратного прохода:");
     for (i, val) in solution.iter().enumerate() {
         println!("x{} = {}", i, val);
     }
-
     println!("x =");
     for val in solution.iter() {
         println!("[{}]", val);
@@ -592,15 +508,16 @@ fn main() {
 }
 ```
 
+#pagebreak()
 *Результат*
-#image("images/07.png", width: 70%)
-#image("images/08.png", width: 70%)
+#image("images/07.png", width: 60%)
+#image("images/08.png", width: 60%)
 
 =	Метод прогонки решения СЛАУ (трехдиагональных)
 
 *Условие*
-В данном случае решается система линейных уравнений вида $A x = b$, где $A$ --- матрица вида:
 
+Решить следующую СЛАУ методом прогонки
 $
     mat(
       -18, 0.18, 0, 0, 0;
@@ -614,7 +531,6 @@ $
 
 ```rust
 use ndarray::{Array1, Array2, array};
-
 fn main() {
     // Исходные данные
     let a: Array2<f64> = array![
@@ -624,32 +540,25 @@ fn main() {
         [0.21, 0.21, 0.21, 21.0, 0.21],
         [0.22, 0.22, 0.22, 0.22, 22.0],
     ];
-
     // Вычисляем вектор b
     let n = a.shape()[0];
     let mut b = Array1::<f64>::zeros(n);
+```
+```rust
     for i in 0..n {
         b[i] = a[[i, i]];
     }
-
-    // b = dot(A, b) in column vector form
     let b = a.dot(&b);
-
     println!("Матрица A:");
     println!("{:?}", a);
     println!("Столбец b:");
     println!("{:?}", b);
-
     let mut q = Array1::<f64>::zeros(n);
     let mut p = Array1::<f64>::zeros(n - 1);
-
     p[0] = -a[[0, 1]] / a[[0, 0]];
     q[0] = b[0] / a[[0, 0]];
-
     println!("Прямая прогонка");
     println!("Список Pi и Qi");
-
-
 ```
 ```rust
     for i in 1..p.len() {
@@ -663,12 +572,10 @@ fn main() {
     let mut x = Array1::<f64>::zeros(n);
     x[n - 1] = q[n - 1];
     println!("x 5 = {}", x[n - 1]);
-
     for i in (0..n - 1).rev() {
         x[i] = p[i] * x[i + 1] + q[i];
         println!("x {} = {}", i + 1, x[i]);
     }
-
     println!("{:?}", x);
 }
 ```
@@ -680,36 +587,16 @@ fn main() {
 
 *Условие*
 
-При решении СЛАУ вида $A x = b$, где $A$ --- квадратная матрица, мы можем преобразовать ее к эквивалентному виду:
+Решить СЛАУ методом простой итерации
 
-$
-  mat(0, - a_12/a_11, ..., -a_(1 n) / a_11;
-      -a_21/a_22, 0, ..., -a_(2 n)/a_22;
-      dots.v, dots.v, dots.down, dots.v;
-    -a_(n 1)/a_(n n), -a_(n 2)/a_(n n), ..., 0
-    )
-  x = mat(b_1 / a_11; b_2 / a_22; dots.v; b_n / a_(n n)).
-$
+$A x = b$, где $A, b$ --- из задания посвященному метдоу гаусса
 
-Таким образом исходная система допускает представление в виде:
-
-$
- alpha x + beta = x,
-$
-
-а критерий остановки вычислений:
-
-$
-  ||x^(k) - x^(k-1)|| < e.
-$
-
+#pagebreak()
 *Код*
-
 ```rust
 use ndarray::{Array1, arr2};
 use ndarray_linalg::Determinant;
 use std::f64;
-
 fn norm_stop(xk: &Array1<f64>, xkp1: &Array1<f64>, epsilon: f64) -> bool {
     xk.iter()
         .zip(xkp1.iter())
@@ -717,7 +604,6 @@ fn norm_stop(xk: &Array1<f64>, xkp1: &Array1<f64>, epsilon: f64) -> bool {
         .fold(0. / 0., f64::max)
         < epsilon
 }
-
 fn main() {
     let a = arr2(&[
         [18.0, 0.18, 0.18, 0.18, 0.18],
@@ -730,13 +616,10 @@ fn main() {
     println!("{:?}", a);
     let det = a.det().expect("Failed to compute determinant");
     println!("Определитель матрицы A: {}", det);
-
     let b_diag: Array1<f64> = a.diag().to_owned();
     let b = a.dot(&b_diag);
     println!("Столбец b:");
     println!("{:?}", b);
-```
-```rust
     let n = a.nrows();
     let mut alpha = a.clone();
     for i in 0..n {
@@ -748,25 +631,18 @@ fn main() {
             }
         }
     }
-
     println!("Матрица alpha:");
     println!("{:?}", alpha);
-
     let mut beta = b.clone();
     for i in 0..n {
         beta[i] = b[i] / a[(i, i)];
     }
-
     println!("Столбец beta:");
     println!("{:?}", beta);
-
     let epsilon = 1e-9;
     println!("Считаем до точности epsilon= {}", epsilon);
-
     let mut xk = Array1::<f64>::zeros(n);
-
     println!("x^(0) = {:?}", xk);
-
     for i in 0..17 {
         let xkp1 = alpha.dot(&xk) + &beta;
         println!("x^({})= {:?}", i + 1, xkp1);
@@ -780,5 +656,43 @@ fn main() {
 
 *Результат*
 
+= Метод Эйлера и усовершенствованный метод Эйлера
+*Условие:*
+
+Решить задачу Коши методом Эйлера и усовершенствованным методом эйлера
+
+*Код:*
+```rust
+
 ```
+
+*Результат:*
+
+= Разностный метод
+*Условие:*
+
+Решить краевую задачу разностным метдом
+$
+  y'' + x^2 y' + x y  = 4 V x^4 - 3 V T x^3 + 6 V x - 2 V T\
+  y(0) = y(T) = 0
+$
+
+где $V$ --- номер варианта.
+
+*Код:*
+```rust
+
 ```
+
+*Результат:*
+
+= Метод неопределенных коэффициентов
+*Условие:*
+
+Решить краевуюзадачу из предыдущего задания методом неопределенных коэффициентов
+
+*Код:*
+```rust
+
+```
+*Результат:*

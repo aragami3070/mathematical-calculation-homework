@@ -68,10 +68,6 @@ fn solve_spline_coefficients(
     let coeffs = a.solve_into(b).expect("Failed to solve system");
     let n = x.len() - 1;
 
-    for d in coeffs.iter() {
-        println!("test: {d}")
-
-    }
     coeffs.into_shape_clone((n, 4)).expect("Reshape error")
 }
 

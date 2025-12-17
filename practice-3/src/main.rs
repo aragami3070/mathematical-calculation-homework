@@ -4,6 +4,7 @@ use std::io;
 fn main() {
     let mut input = String::new();
 
+    println!("Введите x:");
     io::stdin()
         .read_line(&mut input)
         .expect("Failed input x_list");
@@ -12,6 +13,7 @@ fn main() {
         .map(|x| x.trim().parse::<f64>().expect("Failed parse x_list"))
         .collect();
 
+    println!("Введите f:");
     input.clear();
     io::stdin()
         .read_line(&mut input)
@@ -47,7 +49,7 @@ fn main() {
         coefficients.push(new_vec);
     }
 
-    for x in x_extended_list {
+    for x in x_extended_list.clone().iter() {
         let mut end_ind = 0;
         let mut sum = 0.0;
         for sub_list in coefficients.iter() {
@@ -64,7 +66,10 @@ fn main() {
         result.push(sum);
     }
 
-    for res in result {
-        print!("{res} ")
-    }
+    println!("Таблица входных:");
+    println!("x: {x_extended_list:?}");
+    println!("f: {result:?}");
+    println!("Результат:");
+    println!("x: {x_extended_list:?}");
+    println!("N_(x): {result:?}")
 }

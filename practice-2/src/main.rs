@@ -2,6 +2,7 @@ use itertools::Itertools;
 use std::io;
 
 fn main() {
+    println!("Введите x:");
     let mut input = String::new();
     io::stdin()
         .read_line(&mut input)
@@ -11,6 +12,7 @@ fn main() {
         .map(|x| x.trim().parse::<f64>().expect("Failed parse x_list"))
         .collect();
 
+    println!("Введите f:");
     input.clear();
     io::stdin()
         .read_line(&mut input)
@@ -49,5 +51,7 @@ fn main() {
         result.push(sum);
     }
 
-    println!("{result:?}")
+    println!("Результат:");
+    println!("x: {x_extended_list:?}");
+    println!("f: {result:?}")
 }
