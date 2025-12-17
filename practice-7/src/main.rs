@@ -68,7 +68,7 @@ fn main() {
 
     for i in 0..17 {
         let xkp1 = alpha.dot(&xk) + &beta;
-        println!("x^({})= {:?}", i + 1, xkp1);
+        println!("x^({}) = {:?}", i + 1, xkp1);
         if norm_stop(&xk, &xkp1, epsilon) {
             break;
         }

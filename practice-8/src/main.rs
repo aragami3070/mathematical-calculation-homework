@@ -61,7 +61,7 @@ fn main() {
     let error_improved = error_improved.mapv(f64::abs);
 
     println!("\nМетод Эйлера:");
-    println!("{}", "-".repeat(130));
+    println!("{}", "=".repeat(130));
     print!("x:      ");
     for xi in x_euler.iter() {
         print!("{:10.7} ", xi);
@@ -85,10 +85,10 @@ fn main() {
         print!("{:10.7} ", e);
     }
     println!();
-    println!("{}", "-".repeat(130));
+    println!("{}", "=".repeat(130));
 
     println!("\nУсовершенствованный метод Эйлера:");
-    println!("{}", "-".repeat(130));
+    println!("{}", "=".repeat(130));
     print!("x:      ");
     for xi in x_improved.iter() {
         print!("{:10.7} ", xi);
@@ -112,5 +112,5 @@ fn main() {
         print!("{:10.7} ", e);
     }
     println!();
-    println!("{}", "-".repeat(130));
+    println!("{}", "=".repeat(130));
 }
