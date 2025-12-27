@@ -402,7 +402,7 @@
           right: 1.5cm,
         ),
       )
-      set text(size: font_size, lang: "ru", font: "Times New Roman")
+      set text(size: font_size, lang: "ru")
 
       if settings.title_page.at("enabled", default: true) {
         (self.title.make)(self, info)

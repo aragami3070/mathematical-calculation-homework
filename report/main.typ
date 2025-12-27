@@ -6,6 +6,7 @@
   sex: "male",
 ), inspector: (degree: "", name: "")), settings: (title_page: (enabled: true), contents_page: (enabled: true)))
 
+// Задача 1
 = Построение интерполяционного многочлена в общем виде
 
 *Условие*
@@ -133,9 +134,10 @@ fn main() {
 *Результат*
 
 Входные
-#image("images/01.png")
-#image("images/02.png")
+#image("images/01.png", width: 20%)
+#image("images/02.png", width: 50%)
 
+// Задача 2
 = Интерполяционный многочлен в форме Лагранжа
 
 *Условие*
@@ -203,6 +205,7 @@ fn main() {
 *Результат*
 #image("images/03.png", width: 60%)
 
+// Задача 3
 = Интерполяционный многочлен в форме Ньютона
 
 *Условие*
@@ -282,6 +285,7 @@ fn main() {
 *Результат*
 #image("images/04.png", width: 55%)
 
+// Задача 4
 = Интерполяция кубическими сплайнами
 
 *Условие*
@@ -400,6 +404,8 @@ fn main() {
 #pagebreak()
 *Результат*
 #image("images/05.png", width: 80%)
+
+// Задача 5
 = Метод Гаусса решения СЛАУ
 
 *Условие*
@@ -530,6 +536,7 @@ x =
 [0.9615384615384615]
 ```
 
+// Задача 6
 = Метод прогонки решения СЛАУ (трехдиагональных)
 
 *Условие*
@@ -614,6 +621,7 @@ x 1 = 18.000022004400883
 [18.000022004400883, 18.997799559911982, 20.22002200440088, 20.997799559911982, 22.00002200440088],
 ```
 
+// Задача 7
 = Метод простой итерации
 
 *Условие*
@@ -726,6 +734,7 @@ x^(8) = [17.99999999986893, 18.99999999986893, 19.99999999986893, 20.99999999986
 x^(9) = [18.000000000005244, 19.000000000005244, 20.000000000005244, 21.000000000005244, 22.000000000005244]
 ```
 
+// Задача 8
 = Метод Эйлера и усовершенствованный метод Эйлера
 #pagebreak()
 *Условие:*
@@ -757,7 +766,6 @@ fn euler_method(x0: f64, y0: f64, h: f64, n: usize, v: f64) -> (Array1<f64>, Arr
     }
     (x, y)
 }
-
 fn improved_euler_method(x0: f64, y0: f64, h: f64, n: usize, v: f64) -> (Array1<f64>, Array1<f64>) {
     let mut x = Array1::<f64>::zeros(n + 1);
     let mut y = Array1::<f64>::zeros(n + 1);
@@ -790,13 +798,13 @@ fn main() {
     println!("\nМетод Эйлера:");
     println!("{}", "=".repeat(130));
     print!("x:      ");
+```
+```rust
     for xi in x_euler.iter() {
         print!("{:10.7} ", xi);
     }
     println!();
     print!("y_M:    ");
-```
-```rust
     for yi in y_euler.iter() {
         print!("{:10.7} ", yi);
     }
@@ -847,18 +855,18 @@ y_M:    18.0000000 18.0360000 18.0720360 18.1081081 18.1442161 18.1803602 18.216
 y_T:    18.0000000 18.0360180 18.0720720 18.1081620 18.1442880 18.1804500 18.2166480 18.2528820 18.2891520 18.3254580 18.3618000
 Погрешн: 0.0000000  0.0000180  0.0000360  0.0000539  0.0000719  0.0000898  0.0001077  0.0001256  0.0001435  0.0001614  0.0001792
 ==================================================================================================================================
-
+```
+```
 Усовершенствованный метод Эйлера:
 ==================================================================================================================================
 x:       1.0000000  1.0010000  1.0020000  1.0030000  1.0040000  1.0050000  1.0060000  1.0070000  1.0080000  1.0090000  1.0100000
 y_M:    18.0000000 18.0360180 18.0720720 18.1081620 18.1442880 18.1804500 18.2166480 18.2528820 18.2891520 18.3254580 18.3618000
-```
-```
 y_T:    18.0000000 18.0360180 18.0720720 18.1081620 18.1442880 18.1804500 18.2166480 18.2528820 18.2891520 18.3254580 18.3618000
 Погрешн: 0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000  0.0000000
 ==================================================================================================================================
 ```
 
+// Задача 9
 = Разностный метод
 *Условие:*
 
@@ -909,14 +917,14 @@ fn main() {
         f1[i + 1] = s[i] / denom;
         s1[i + 1] = (r[i] + f[i] * s1[i]) / denom;
     }
+```
+```rust
     y_vec[n] = 0.0;
     for i in (1..=n - 1).rev() {
         y_vec[i] = f1[i + 1] * y_vec[i + 1] + s1[i + 1];
     }
     let mut max_e = 0.0;
     let mut max_e_index = 0;
-```
-```rust
     for i in 0..=n {
         e[i] = (y_vec[i] - exact[i]).abs();
         if e[i] > max_e {
@@ -954,6 +962,8 @@ x                 y        exact             e
 Максимальный e: 955.801648478242
 Номер максимального е: 9
 ```
+
+// Задача 10
 = Краевая задача методом неопределенных коэффициентов
 *Условие:*
 
@@ -966,26 +976,23 @@ $
     T = V
   )
 $
+
+#pagebreak()
 *Код:*
 ```rust
 use std::error::Error;
 use ndarray::{Array1, Array2, s};
-use polars::prelude::*;
 const V: f64 = 18.0;
 const H: f64 = 0.1;
-const N: usize = 180;
-fn ytoch(x: f64) -> f64 {
+const N: usize = V as usize * 10;
+fn y_tochni(x: f64) -> f64 {
     V * x * x * (x - V)
 }
 fn f(x: f64) -> f64 {
     4.0 * V * x.powi(4) - 3.0 * V * V * x.powi(3) + 6.0 * V * x - 2.0 * V * V
 }
-fn p(x: f64) -> f64 {
-    x * x
-}
-fn q(x: f64) -> f64 {
-    x
-}
+fn p(x: f64) -> f64 { x * x }
+fn q(x: f64) -> f64 { x }
 fn phi_k(x: f64, k: usize) -> f64 {
     x.powi(k as i32) * (x - V)
 }
@@ -1002,7 +1009,6 @@ fn ddphi_k(x: f64, k: usize) -> f64 {
 fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, Array1<f64>) {
     let n = b.len();
     for k in 0..n {
-        // Поиск максимального элемента в столбце k
         let mut max_row = k;
         let mut max_val = a[[k, k]].abs();
         for i in (k + 1)..n {
@@ -1011,7 +1017,6 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
                 max_row = i;
             }
         }
-        // Перестановка строк
         if max_row != k {
             for col in 0..n {
                 let temp = a[[k, col]];
@@ -1021,16 +1026,6 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
             let temp_b = b[k];
             b[k] = b[max_row];
             b[max_row] = temp_b;
-        }
-        // Проверка на нулевой ведущий элемент
-        if a[[k, k]].abs() < 1e-12 {
-            println!(
-                "Предупреждение: малый диагональный элемент A[{},{}] = {:.2e}",
-                k,
-                k,
-                a[[k, k]]
-            );
-            a[[k, k]] = 1e-12;
         }
         for i in (k + 1)..n {
             if a[[i, k]].abs() > 1e-15 {
@@ -1045,6 +1040,8 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
     }
     (a, b)
 }
+```
+```rust
 fn backward_substitution(u: &Array2<f64>, b: &Array1<f64>) -> Array1<f64> {
     let n = b.len();
     let mut x = Array1::<f64>::zeros(n);
@@ -1059,21 +1056,15 @@ fn backward_substitution(u: &Array2<f64>, b: &Array1<f64>) -> Array1<f64> {
     x
 }
 fn main() -> Result<(), Box<dyn Error>> {
-    let xk: Vec<f64> = (0..=N).map(|i| i as f64 * H).collect();
-    println!("Проверка точного решения в ключевых точках:");
-    let test_points = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
-    for &x in &test_points {
-        println!("x = {:.0}: y_toch = {:.2}", x, ytoch(x));
-    }
+    let x_k: Vec<f64> = (0..=N).map(|i| i as f64 * H).collect();
     let mut a_matrix = Array2::zeros((N, N));
     let mut b_vec = Array1::zeros(N);
-    // Заполнение матрицы A и вектора b для внутренних точек (i=1..n)
     for i in 1..=N {
         let i_idx = i - 1;
-        b_vec[i_idx] = f(xk[i]);
+        b_vec[i_idx] = f(x_k[i]);
         for k in 1..=N {
             let k_idx = k - 1;
-            let x = xk[i];
+            let x = x_k[i];
             let val = ddphi_k(x, k) + p(x) * dphi_k(x, k) + q(x) * phi_k(x, k);
             a_matrix[[i_idx, k_idx]] = val;
         }
@@ -1084,14 +1075,14 @@ fn main() -> Result<(), Box<dyn Error>> {
     let (u, b_transformed) = forward_elimination(a_matrix, b_vec);
     let c_vec = backward_substitution(&u, &b_transformed);
     println!("Первые 10 коэффициентов a_k:");
-    for i in 0..10.min(N) {
+    for i in 0..10 {
         println!("a_{} = {:e}", i + 1, c_vec[i]);
     }
     println!("\nСравнение решений в некоторых точках:");
     let mut comparison_data = Vec::new();
     for x in 0..=V as usize {
         let x_f64 = x as f64;
-        let y_exact = ytoch(x_f64);
+        let y_exact = y_tochni(x_f64);
         let y_appr = y_approx(&c_vec, x_f64);
         let rel_error = if y_exact.abs() > 1e-12 {
             ((y_appr - y_exact) / y_exact).abs()
@@ -1100,28 +1091,36 @@ fn main() -> Result<(), Box<dyn Error>> {
         };
         comparison_data.push((x_f64, y_exact, y_appr, rel_error));
     }
-    let df = df![
-        "x" => (0..=V as usize).map(|x| x as f64).collect::<Vec<_>>(),
-        "Точное y" => (0..=V as usize).map(|x| ytoch(x as f64)).collect::<Vec<_>>(),
-        "Приближенное y" => (0..=V as usize).map(|x| y_approx(&c_vec, x as f64)).collect::<Vec<_>>(),
-        "Относительная погрешность" => (0..=V as usize)
-            .map(|x| {
-                let x_f64 = x as f64;
-                let y_exact = ytoch(x_f64);
-                let y_appr = y_approx(&c_vec, x_f64);
-                if y_exact.abs() > 1e-12 {
-                    ((y_appr - y_exact) / y_exact).abs()
-                } else {
-                    y_appr.abs()
-                }
-            })
-            .collect::<Vec<_>>(),
-    ]?;
-    println!("{}", df);
-    polars::env::set_config(polars::env::ConfigOptions {
-        table_row_count: Some(100),
-        ..Default::default()
-    });
+    let x: Vec<f64> = (0..=V as usize).map(|x| x as f64).collect();
+    let y_exact: Vec<f64> = x.iter().map(|&x| y_tochni(x)).collect();
+    let y_approx: Vec<f64> = x.iter().map(|&x| y_approx(&c_vec, x)).collect();
+    let error: Vec<f64> = y_exact
+        .iter()
+        .zip(y_approx.iter())
+        .map(|(&y_ex, &y_ap)| {
+            if y_ex.abs() > 1e-12 {
+                ((y_ap - y_ex) / y_ex).abs()
+            } else {
+                y_ap.abs()
+            }
+        })
+        .collect();
+```
+```rust
+    let max_len = x.len();
+    println!("┌{0:─<10}┬{0:─<14}┬{0:─<14}┬{0:─<12}┐", "─".repeat(8));
+    println!(
+        "│ {:<8} │ {:<12} │ {:<12} │ {:<10} │",
+        "x", "y_точн", "y_прибл", "погреш"
+    );
+    println!("├{0:─<10}┼{0:─<14}┼{0:─<14}┼{0:─<12}┤", "─".repeat(8));
+    for i in 0..max_len {
+        println!(
+            "│ {:<8.1} │ {:<12.4} │ {:<12.4} │ {:<10.4} │",
+            x[i], y_exact[i], y_approx[i], error[i]
+        );
+    }
+    println!("└{0:─<10}┴{0:─<14}┴{0:─<14}┴{0:─<12}┘", "─".repeat(8));
     Ok(())
 }
 fn y_approx(c: &Array1<f64>, x: f64) -> f64 {
@@ -1134,9 +1133,52 @@ fn y_approx(c: &Array1<f64>, x: f64) -> f64 {
 ```
 *Результат:*
 ```
+Размерность матрицы A: 180x180
+Размерность вектора b: 180
+Решение СЛАУ методом Гаусса
+Первые 10 коэффициентов a_k:
+a_1 = -2.7079891933616364e2
+a_2 = 1.3730372362152974e2
+a_3 = -4.003466093547576e1
+a_4 = 1.3800250365787013e1
+a_5 = 2.508079053026624e1
+a_6 = -1.2677762952913751e2
+a_7 = 2.292548822377803e2
+a_8 = -2.1259792092897735e2
+a_9 = 1.200468421477198e2
+a_10 = -4.501528043521843e1
+Сравнение решений в некоторых точках:
+┌──────────┬──────────────┬──────────────┬────────────┐
+│ x        │ y_точн       │ y_прибл      │ погреш     │
+├──────────┼──────────────┼──────────────┼────────────┤
+│ 0.0      │ -0.0000      │ 0.0000       │ 0.0000     │
+│ 1.0      │ -306.0000    │ 2718.9053    │ 9.8853     │
+│ 2.0      │ -1152.0000   │ 499.9402     │ 1.4340     │
+│ 3.0      │ -2430.0000   │ -6883.3143   │ 1.8326     │
+│ 4.0      │ -4032.0000   │ -15611.5727  │ 2.8719     │
+│ 5.0      │ -5850.0000   │ -24757.9200  │ 3.2321     │
+│ 6.0      │ -7776.0000   │ -33937.7918  │ 3.3644     │
+│ 7.0      │ -9702.0000   │ -42944.4465  │ 3.4263     │
+│ 8.0      │ -11520.0000  │ -51236.9552  │ 3.4477     │
+│ 9.0      │ -13122.0000  │ -58338.7090  │ 3.4459     │
+│ 10.0     │ -14400.0000  │ -63882.2420  │ 3.4363     │
+│ 11.0     │ -15246.0000  │ -67531.2688  │ 3.4294     │
+│ 12.0     │ -15552.0000  │ -68881.5450  │ 3.4291     │
+│ 13.0     │ -15210.0000  │ -67366.0960  │ 3.4291     │
+│ 14.0     │ -14112.0000  │ -62533.8830  │ 3.4313     │
+│ 15.0     │ -12150.0000  │ -54035.9597  │ 3.4474     │
+```
+```
+│ 16.0     │ -9216.0000   │ -41498.9021  │ 3.5029     │
+│ 17.0     │ -5202.0000   │ -24265.8009  │ 3.6647     │
+│ 18.0     │ 0.0000       │ 0.0000       │ 0.0000     │
+└──────────┴──────────────┴──────────────┴────────────┘
 ```
 
+// Задача 11
 = Метод неопределенных коэффициентов
+*Условие:*
+
 Решите следующее интегральное уравнение:
 $
   y(x) + 1 * integral_0^1 (x t + x^2 t^2 + x^3 t^3) y(t) d t
@@ -1145,10 +1187,174 @@ $
 
 *Код:*
 ```rust
+use ndarray::{Array1, Array2};
+use libm::{powf, fabsf};
+fn rhs_func(x: f32, variant: f32) -> f32 {
+    variant * (4.0 / 3.0 * x + 0.25 * powf(x, 2.0) + 0.2 * powf(x, 3.0))
+}
+fn simpson_integrate<F>(mut f: F, a: f32, b: f32, n: usize) -> f32
+where
+    F: FnMut(f32) -> f32,
+{
+    let h = (b - a) / n as f32;
+    let mut sum = f(a) + f(b);
+    let mut x = a + h;
+    for i in 1..n {
+        let weight = if i % 2 == 0 { 2.0 } else { 4.0 };
+        sum += weight * f(x);
+        x += h;
+    }
+    sum * h / 3.0
+}
+fn build_alpha(size: usize) -> Array2<f32> {
+    let mut alpha = Array2::zeros((size, size));
+    for i in 0..size {
+        for j in 0..size {
+            let integrand = |t: f32| -> f32 {
+                let ai = match i {
+                    0 => t,
+                    1 => powf(t, 2.0),
+                    _ => powf(t, 3.0),
+                };
+                let bj = match j {
+                    0 => t,
+                    1 => powf(t, 2.0),
+                    _ => powf(t, 3.0),
+                };
+                ai * bj
+            };
+            alpha[[i, j]] = simpson_integrate(integrand, 0.0, 1.0, 1000);
+        }
+    }
+    alpha
+}
+fn build_gamma(size: usize, variant: f32) -> Array1<f32> {
+    let mut gamma = Array1::zeros(size);
+    for i in 0..size {
+```
+```rust
+        let integrand = |t: f32| -> f32 {
+            let bi = match i {
+                0 => t,
+                1 => powf(t, 2.0),
+                _ => powf(t, 3.0),
+            };
+            rhs_func(t, variant) * bi
+        };
+        gamma[i] = simpson_integrate(integrand, 0.0, 1.0, 1000);
+    }
+    gamma
+}
+fn gauss_method(mut mat: Array2<f32>, mut vecb: Array1<f32>) -> Array1<f32>{
+    let n = mat.nrows();
+    for i in 0..n {
+        let mut max_row = i;
+        for k in (i + 1)..n {
+            if mat[[k, i]].abs() > mat[[max_row, i]].abs() {
+                max_row = k;
+            }
+        }
+        if max_row != i {
+            for col in 0..n {
+                let temp = mat[[i, col]];
+                mat[[i, col]] = mat[[max_row, col]];
+                mat[[max_row, col]] = temp;
+            }
+            let temp = vecb[i];
+            vecb[i] = vecb[max_row];
+            vecb[max_row] = temp;
+        }
+        for k in (i + 1)..n {
+            let c = -mat[[k, i]] / mat[[i, i]];
+            for j in i..n {
+                if i == j {
+                    mat[[k, j]] = 0.0;
+                } else {
+                    mat[[k, j]] += c * mat[[i, j]];
+                }
+            }
+            vecb[k] += c * vecb[i];
+        }
+    }
+    let mut x = Array1::zeros(n);
+    for i in (0..n).rev() {
+        let mut sum = 0.0;
+        for j in (i + 1)..n {
+            sum += mat[[i, j]] * x[j];
+        }
+        x[i] = (vecb[i] - sum) / mat[[i, i]];
+    }
+    x
+}
+fn fredholm_solver(variant: f32, rank: usize) -> (Array1<f32>, Array1<f32>, Array1<f32>, Array1<f32>) {
+    let alpha = build_alpha(rank);
+    let gamma = build_gamma(rank, variant);
+    let mut system_matrix = Array2::eye(rank);
+    system_matrix += &alpha;
+    let coeffs = gauss_method(system_matrix, gamma);
+    let step = 0.1;
+    let x_vals: Vec<f32> = (0..=10).map(|i| i as f32 * step).collect();
+    let x_vals_arr = Array1::from_vec(x_vals.clone());
+```
+```rust
+    let mut y_num = Array1::zeros(x_vals.len());
+    for (i, &x) in x_vals.iter().enumerate() {
+        let mut y_val = rhs_func(x, variant);
+        for j in 0..rank {
+            let aj = match j {
+                0 => x,
+                1 => powf(x, 2.0),
+                _ => powf(x, 3.0),
+            };
+            y_val -= coeffs[j] * aj;
+        }
+        y_num[i] = y_val;
+    }
+    let y_true = &x_vals_arr * variant;
+    let err = (&y_num - &y_true).mapv(f32::abs);
+    (x_vals_arr, y_num, y_true, err)
+}
+fn main() {
+    let v = 18.0;
+    println!("Вычисление для варианта {}", v as i32);
+    let (x, y_calc, y_exact, error) = fredholm_solver(v, 3);
+    println!("\nРешение интегрального уравнения Фредгольма (вырожденное ядро)");
+    println!("x:           {}",
+        x.iter()
+         .map(|xi| format!("{:.7}", xi))
+         .collect::<Vec<_>>()
+         .join(" "));
+    println!("y_мет:       {}",
+        y_calc.iter()
+              .map(|yi| format!("{:.7}", yi))
+              .collect::<Vec<_>>()
+              .join(" "));
+    println!("y_точн:      {}",
+        y_exact.iter()
+               .map(|yi| format!("{:.7}", yi))
+               .collect::<Vec<_>>()
+               .join(" "));
+    println!("погрешность: {}",
+        error.iter()
+             .map(|ei| format!("{:.7}", ei))
+             .collect::<Vec<_>>()
+             .join(" "));
+}
 ```
 *Результат:*
+```
+Вычисление для варианта 18
+Решение интегрального уравнения Фредгольма (вырожденное ядро)
+x:      0.000000 0.100000 0.200000 0.300000 0.400000 0.500000 0.600000 0.700000 0.800000 0.900000 1.000000
+y_мет:  0.000000 1.800005 3.600012 5.400022 7.200034 9.000050 10.800071 12.600094 14.400125 16.200159 18.000202
+y_точн: 0.000000 1.800000 3.600000 5.400000 7.200000 9.000000 10.800000 12.599999 14.400001 16.200001 18.000000
+погреш: 0.000000 0.000005 0.000012 0.000022 0.000033 0.000050 0.000071 0.000094 0.000124 0.000158 0.000202
+```
 
+#pagebreak()
+// Задача 12
 = Метод квадратур
+*Условие:*
 Решите следующее интегральное уравнение:
 $
   y(x) + 1 * integral_0^1 (x t + x^2 t^2 + x^3 t^3) y(t) d t
@@ -1157,6 +1363,150 @@ $
 
 *Код:*
 ```rust
+use ndarray::{Array1, Array2};
+use std::error::Error;
+fn solve_fredholm_degenerate_correct(v: f64) -> Result<(), Box<dyn Error>> {
+    let a = 0.0;
+    let b = 1.0;
+    let n = 3;
+    let lam = 1.0;
+    let mut alpha = Array2::zeros((n as usize, n as usize));
+    let mut gamma = Array1::zeros(n as usize);
+    for i in 0..n {
+        for k in 0..n {
+            let deg = i + k;
+            alpha[[i as usize, k as usize]] = 1.0 / (deg as f64 + 1.0);
+        }
+        let deg1 = 1 + i;
+        let deg2 = 2 + i;
+        let deg3 = 3 + i;
+        gamma[i as usize] = v
+            * ((4.0 / 3.0) / (deg1 as f64 + 1.0)
+                + 0.25 / (deg2 as f64 + 1.0)
+                + 0.2 / (deg3 as f64 + 1.0));
+    }
+    let eye = Array2::eye(n as usize);
+    let mut alpha_t = alpha.clone();
+    alpha_t.swap_axes(0, 1);
+    let a_matrix = &eye + &(lam * &alpha_t);
+    let q = gauss_method(&a_matrix, &gamma)?;
+    let num_points = 18usize;
+    let mut x_test = Vec::with_capacity(num_points);
+    for i in 0..num_points {
+        let x = a + (b - a) * (i as f64) / ((num_points - 1) as f64);
+        x_test.push(x);
+    }
+    let mut y_num_vals = Vec::with_capacity(num_points);
+    let mut y_ex_vals = Vec::with_capacity(num_points);
+    let mut errors = Vec::with_capacity(num_points);
+    let a0 = |x: f64| x;
+    let a1 = |x: f64| x * x;
+    let a2 = |x: f64| x.powi(3);
+    for &x in &x_test {
+        let mut result = v * (4.0 / 3.0 * x + 0.25 * x * x + 0.2 * x.powi(3));
+        result -= lam * q[0] * a0(x);
+        result -= lam * q[1] * a1(x);
+        result -= lam * q[2] * a2(x);
+        let y_num = result;
+        let y_ex = v * x;
+        y_num_vals.push(y_num);
+        y_ex_vals.push(y_ex);
+        errors.push((y_num - y_ex).abs());
+    }
+    let max_len = x_test.len();
+    println!("┌{0:─<10}┬{0:─<14}┬{0:─<14}┬{0:─<12}┐", "─".repeat(8));
 ```
+```rust
+    println!(
+        "│ {:<8} │ {:<12} │ {:<12} │ {:<10} │",
+        "x", "y_метода", "y_точн", "погреш"
+    );
+    println!("├{0:─<10}┼{0:─<14}┼{0:─<14}┼{0:─<12}┤", "─".repeat(8));
+    for i in 0..max_len {
+        println!(
+            "│ {:<8.1} │ {:<12.4} │ {:<12.4} │ {:<10.4} │",
+            x_test[i], y_num_vals[i], y_ex_vals[i], errors[i]
+        );
+    }
+    println!("└{0:─<10}┴{0:─<14}┴{0:─<14}┴{0:─<12}┘", "─".repeat(8));
+    Ok(())
+}
+fn gauss_method(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, Box<dyn Error>> {
+    let n = a.nrows();
+    let mut mat = a.to_owned();
+    let mut vecb = b.to_owned();
+    for i in 0..n {
+        let mut max_row = i;
+        for k in (i + 1)..n {
+            if mat[[k, i]].abs() > mat[[max_row, i]].abs() {
+                max_row = k;
+            }
+        }
+        if max_row != i {
+            for col in 0..n {
+                let temp = mat[[i, col]];
+                mat[[i, col]] = mat[[max_row, col]];
+                mat[[max_row, col]] = temp;
+            }
+            let temp = vecb[i];
+            vecb[i] = vecb[max_row];
+            vecb[max_row] = temp;
+        }
+        for k in (i + 1)..n {
+            if mat[[i, i]].abs() < 1e-12 {
+                return Err("Singular matrix".into());
+            }
+            let c = -mat[[k, i]] / mat[[i, i]];
+            for j in i..n {
+                if i == j {
+                    mat[[k, j]] = 0.0;
+                } else {
+                    mat[[k, j]] += c * mat[[i, j]];
+                }
+            }
+            vecb[k] += c * vecb[i];
+        }
+    }
+    let mut x = Array1::zeros(n);
+    for i in (0..n).rev() {
+        let mut sum = 0.0;
+        for j in (i + 1)..n {
+            sum += mat[[i, j]] * x[j];
+        }
+        x[i] = (vecb[i] - sum) / mat[[i, i]];
+    }
+    Ok(x)
+}
+fn main() -> Result<(), Box<dyn Error>> {
+    solve_fredholm_degenerate_correct(18.0)
+}
+```
+
 *Результат:*
+```
+┌──────────┬──────────────┬──────────────┬────────────┐
+│ x        │ y_метода     │ y_точн       │ погреш     │
+├──────────┼──────────────┼──────────────┼────────────┤
+│ 0.0      │ 0.0000       │ 0.0000       │ 0.0000     │
+│ 0.1      │ 1.0931       │ 1.0588       │ 0.0343     │
+│ 0.1      │ 2.1849       │ 2.1176       │ 0.0673     │
+│ 0.2      │ 3.2753       │ 3.1765       │ 0.0988     │
+```
+```
+│ 0.2      │ 4.3640       │ 4.2353       │ 0.1287     │
+│ 0.3      │ 5.4509       │ 5.2941       │ 0.1567     │
+│ 0.4      │ 6.5356       │ 6.3529       │ 0.1826     │
+│ 0.4      │ 7.6179       │ 7.4118       │ 0.2062     │
+│ 0.5      │ 8.6978       │ 8.4706       │ 0.2272     │
+│ 0.5      │ 9.7748       │ 9.5294       │ 0.2454     │
+│ 0.6      │ 10.8489      │ 10.5882      │ 0.2606     │
+│ 0.6      │ 11.9197      │ 11.6471      │ 0.2727     │
+│ 0.7      │ 12.9871      │ 12.7059      │ 0.2813     │
+│ 0.8      │ 14.0509      │ 13.7647      │ 0.2862     │
+│ 0.8      │ 15.1108      │ 14.8235      │ 0.2873     │
+│ 0.9      │ 16.1666      │ 15.8824      │ 0.2843     │
+│ 0.9      │ 17.2182      │ 16.9412      │ 0.2770     │
+│ 1.0      │ 18.2651      │ 18.0000      │ 0.2651     │
+└──────────┴──────────────┴──────────────┴────────────┘
+```
 
