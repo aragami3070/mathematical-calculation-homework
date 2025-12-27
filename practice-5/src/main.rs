@@ -7,15 +7,13 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
         for i in (k + 1)..n {
             if a[[i, k]] != 0.0 {
                 let factor = a[[i, k]] / a[[k, k]];
-                // Update row i from k+1 to end: A[i, k+1..n] -= factor * A[k, k+1..n]
                 for col in (k + 1)..n {
                     let a_ik = a[[i, k]];
                     let a_kk = a[[k, k]];
-                    // factor = a_ik / a_kk;
                     let factor = a_ik / a_kk;
                     a[[i, col]] -= factor * a[[k, col]];
                 }
-                a[[i, k]] = 0.0; // Zero out explicitly for clarity
+                a[[i, k]] = 0.0;
                 b[i] -= factor * b[k];
             }
         }

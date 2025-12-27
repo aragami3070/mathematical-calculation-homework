@@ -1,13 +1,11 @@
 use std::error::Error;
-
 use ndarray::{Array1, Array2, s};
-use polars::prelude::*;
 
 const V: f64 = 18.0;
 const H: f64 = 0.1;
-const N: usize = 180;
+const N: usize = V as usize * 10;
 
-fn ytoch(x: f64) -> f64 {
+fn y_tochni(x: f64) -> f64 {
     V * x * x * (x - V)
 }
 
@@ -67,17 +65,6 @@ fn forward_elimination(mut a: Array2<f64>, mut b: Array1<f64>) -> (Array2<f64>, 
             b[max_row] = temp_b;
         }
 
-        // Проверка на нулевой ведущий элемент
-        if a[[k, k]].abs() < 1e-12 {
-            println!(
-                "Предупреждение: малый диагональный элемент A[{},{}] = {:.2e}",
-                k,
-                k,
-                a[[k, k]]
-            );
-            a[[k, k]] = 1e-12;
-        }
-
         // Исключение
         for i in (k + 1)..n {
             if a[[i, k]].abs() > 1e-15 {
@@ -109,14 +96,7 @@ fn backward_substitution(u: &Array2<f64>, b: &Array1<f64>) -> Array1<f64> {
 
 fn main() -> Result<(), Box<dyn Error>> {
     // Создаем сетку
-    let xk: Vec<f64> = (0..=N).map(|i| i as f64 * H).collect();
-
-    println!("Проверка точного решения в ключевых точках:");
-    let test_points = [0.0, 1.0, 2.0, 3.0, 4.0, 5.0];
-    for &x in &test_points {
-        println!("x = {:.0}: y_toch = {:.2}", x, ytoch(x));
-    }
-
+    let x_k: Vec<f64> = (0..=N).map(|i| i as f64 * H).collect();
     // Инициализация матрицы A и вектора b
     let mut a_matrix = Array2::zeros((N, N));
     let mut b_vec = Array1::zeros(N);
@@ -124,10 +104,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     // Заполнение матрицы A и вектора b для ВНУТРЕННИХ точек (i=1..n)
     for i in 1..=N {
         let i_idx = i - 1;
-        b_vec[i_idx] = f(xk[i]);
+        b_vec[i_idx] = f(x_k[i]);
         for k in 1..=N {
             let k_idx = k - 1;
-            let x = xk[i];
+            let x = x_k[i];
             let val = ddphi_k(x, k) + p(x) * dphi_k(x, k) + q(x) * phi_k(x, k);
             a_matrix[[i_idx, k_idx]] = val;
         }
@@ -142,7 +122,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let c_vec = backward_substitution(&u, &b_transformed);
 
     println!("Первые 10 коэффициентов a_k:");
-    for i in 0..10.min(N) {
+    for i in 0..10 {
         println!("a_{} = {:e}", i + 1, c_vec[i]);
     }
 
@@ -152,7 +132,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     for x in 0..=V as usize {
         let x_f64 = x as f64;
-        let y_exact = ytoch(x_f64);
+        let y_exact = y_tochni(x_f64);
         let y_appr = y_approx(&c_vec, x_f64);
         let rel_error = if y_exact.abs() > 1e-12 {
             ((y_appr - y_exact) / y_exact).abs()
@@ -163,29 +143,37 @@ fn main() -> Result<(), Box<dyn Error>> {
         comparison_data.push((x_f64, y_exact, y_appr, rel_error));
     }
 
-    let df = df![
-        "x" => (0..=V as usize).map(|x| x as f64).collect::<Vec<_>>(),
-        "Точное y" => (0..=V as usize).map(|x| ytoch(x as f64)).collect::<Vec<_>>(),
-        "Приближенное y" => (0..=V as usize).map(|x| y_approx(&c_vec, x as f64)).collect::<Vec<_>>(),
-        "Относительная погрешность" => (0..=V as usize)
-            .map(|x| {
-                let x_f64 = x as f64;
-                let y_exact = ytoch(x_f64);
-                let y_appr = y_approx(&c_vec, x_f64);
-                if y_exact.abs() > 1e-12 {
-                    ((y_appr - y_exact) / y_exact).abs()
-                } else {
-                    y_appr.abs()
-                }
-            })
-            .collect::<Vec<_>>(),
-    ]?;
+    let x: Vec<f64> = (0..=V as usize).map(|x| x as f64).collect();
+    let y_exact: Vec<f64> = x.iter().map(|&x| y_tochni(x)).collect();
+    let y_approx: Vec<f64> = x.iter().map(|&x| y_approx(&c_vec, x)).collect();
+    let error: Vec<f64> = y_exact
+        .iter()
+        .zip(y_approx.iter())
+        .map(|(&y_ex, &y_ap)| {
+            if y_ex.abs() > 1e-12 {
+                ((y_ap - y_ex) / y_ex).abs()
+            } else {
+                y_ap.abs()
+            }
+        })
+        .collect();
 
-    println!("{}", df);
-    polars::env::set_config(polars::env::ConfigOptions {
-        table_row_count: Some(100),
-        ..Default::default()
-    });
+    let max_len = x.len();
+    println!("┌{0:─<10}┬{0:─<14}┬{0:─<14}┬{0:─<12}┐", "─".repeat(8));
+    println!(
+        "│ {:<8} │ {:<12} │ {:<12} │ {:<10} │",
+        "x", "y_точн", "y_прибл", "погреш"
+    );
+    println!("├{0:─<10}┼{0:─<14}┼{0:─<14}┼{0:─<12}┤", "─".repeat(8));
+
+    for i in 0..max_len {
+        println!(
+            "│ {:<8.1} │ {:<12.4} │ {:<12.4} │ {:<10.4} │",
+            x[i], y_exact[i], y_approx[i], error[i]
+        );
+    }
+
+    println!("└{0:─<10}┴{0:─<14}┴{0:─<14}┴{0:─<12}┘", "─".repeat(8));
     Ok(())
 }
 

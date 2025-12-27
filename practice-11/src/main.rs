@@ -1,90 +1,68 @@
 use ndarray::{Array1, Array2};
-use polars::prelude::*;
-use std::error::Error;
+use libm::powf;
 
-fn solve_fredholm_degenerate_correct(v: f64) -> Result<(), Box<dyn Error>> {
-    let a = 0.0;
-    let b = 1.0;
-    let n = 3;
-    let lam = 1.0;
-
-    let mut alpha = Array2::zeros((n as usize, n as usize));
-    let mut gamma = Array1::zeros(n as usize);
-
-    // Точное интегрирование полиномов [0,1]
-    for i in 0..n {
-        for k in 0..n {
-            let deg = i + k;
-            alpha[[i as usize, k as usize]] = 1.0 / (deg as f64 + 1.0);
-        }
-        let deg1 = 1 + i;
-        let deg2 = 2 + i;
-        let deg3 = 3 + i;
-        gamma[i as usize] = v
-            * ((4.0 / 3.0) / (deg1 as f64 + 1.0)
-                + 0.25 / (deg2 as f64 + 1.0)
-                + 0.2 / (deg3 as f64 + 1.0));
-    }
-
-    let eye = Array2::eye(n as usize);
-    let mut alpha_t = alpha.clone();
-    alpha_t.swap_axes(0, 1);
-    let a_matrix = &eye + &(lam * &alpha_t);
-    let q = solve_linear_system(&a_matrix, &gamma)?;
-
-    // Тестовые точки
-    let num_points = 10usize;
-    let mut x_test = Vec::with_capacity(num_points);
-    for i in 0..num_points {
-        let x = a + (b - a) * (i as f64) / ((num_points - 1) as f64);
-        x_test.push(x);
-    }
-
-    let mut y_num_vals = Vec::with_capacity(num_points);
-    let mut y_ex_vals = Vec::with_capacity(num_points);
-    let mut errors = Vec::with_capacity(num_points);
-
-    // Функции базиса
-    let a0 = |x: f64| x;
-    let a1 = |x: f64| x * x;
-    let a2 = |x: f64| x.powi(3);
-
-    for &x in &x_test {
-        // f(x)
-        let mut result = v * (4.0 / 3.0 * x + 0.25 * x * x + 0.2 * x.powi(3));
-        // Вычитаем поправку
-        result -= lam * q[0] * a0(x);
-        result -= lam * q[1] * a1(x);
-        result -= lam * q[2] * a2(x);
-
-        let y_num = result;
-        let y_ex = v * x;
-
-        y_num_vals.push(y_num);
-        y_ex_vals.push(y_ex);
-        errors.push((y_num - y_ex).abs());
-    }
-
-    let df = df![
-        "x" => &x_test,
-        "y_метода" => &y_num_vals,
-        "y_точн" => &y_ex_vals,
-        "eps" => &errors,
-    ]?;
-
-    println!("{}", df);
-    println!("\n");
-
-    Ok(())
+fn rhs_func(x: f32, variant: f32) -> f32 {
+    variant * (4.0 / 3.0 * x + 0.25 * powf(x, 2.0) + 0.2 * powf(x, 3.0))
 }
 
-fn solve_linear_system(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, Box<dyn Error>> {
-    let n = a.nrows();
-    let mut mat = a.to_owned();
-    let mut vecb = b.to_owned();
+fn simpson_integrate<F>(mut f: F, a: f32, b: f32, n: usize) -> f32
+where
+    F: FnMut(f32) -> f32,
+{
+    let h = (b - a) / n as f32;
+    let mut sum = f(a) + f(b);
+    let mut x = a + h;
 
+    for i in 1..n {
+        let weight = if i % 2 == 0 { 2.0 } else { 4.0 };
+        sum += weight * f(x);
+        x += h;
+    }
+    sum * h / 3.0
+}
+
+fn build_alpha(size: usize) -> Array2<f32> {
+    let mut alpha = Array2::zeros((size, size));
+    for i in 0..size {
+        for j in 0..size {
+            let integrand = |t: f32| -> f32 {
+                let ai = match i {
+                    0 => t,
+                    1 => powf(t, 2.0),
+                    _ => powf(t, 3.0),
+                };
+                let bj = match j {
+                    0 => t,
+                    1 => powf(t, 2.0),
+                    _ => powf(t, 3.0),
+                };
+                ai * bj
+            };
+            alpha[[i, j]] = simpson_integrate(integrand, 0.0, 1.0, 1000);
+        }
+    }
+    alpha
+}
+
+fn build_gamma(size: usize, variant: f32) -> Array1<f32> {
+    let mut gamma = Array1::zeros(size);
+    for i in 0..size {
+        let integrand = |t: f32| -> f32 {
+            let bi = match i {
+                0 => t,
+                1 => powf(t, 2.0),
+                _ => powf(t, 3.0),
+            };
+            rhs_func(t, variant) * bi
+        };
+        gamma[i] = simpson_integrate(integrand, 0.0, 1.0, 1000);
+    }
+    gamma
+}
+
+fn gauss_method(mut mat: Array2<f32>, mut vecb: Array1<f32>) -> Array1<f32>{
+    let n = mat.nrows();
     for i in 0..n {
-        // Поиск главного элемента
         let mut max_row = i;
         for k in (i + 1)..n {
             if mat[[k, i]].abs() > mat[[max_row, i]].abs() {
@@ -92,7 +70,6 @@ fn solve_linear_system(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, 
             }
         }
 
-        // Перестановка строк
         if max_row != i {
             for col in 0..n {
                 let temp = mat[[i, col]];
@@ -103,12 +80,7 @@ fn solve_linear_system(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, 
             vecb[i] = vecb[max_row];
             vecb[max_row] = temp;
         }
-
-        // Прямой ход
         for k in (i + 1)..n {
-            if mat[[i, i]].abs() < 1e-12 {
-                return Err("Singular matrix".into());
-            }
             let c = -mat[[k, i]] / mat[[i, i]];
             for j in i..n {
                 if i == j {
@@ -121,7 +93,6 @@ fn solve_linear_system(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, 
         }
     }
 
-    // Обратный ход
     let mut x = Array1::zeros(n);
     for i in (0..n).rev() {
         let mut sum = 0.0;
@@ -130,11 +101,66 @@ fn solve_linear_system(a: &Array2<f64>, b: &Array1<f64>) -> Result<Array1<f64>, 
         }
         x[i] = (vecb[i] - sum) / mat[[i, i]];
     }
-
-    Ok(x)
+    x
 }
 
-fn main() -> Result<(), Box<dyn Error>> {
+fn fredholm_solver(variant: f32, rank: usize) -> (Array1<f32>, Array1<f32>, Array1<f32>, Array1<f32>) {
+    let alpha = build_alpha(rank);
+    let gamma = build_gamma(rank, variant);
+    let mut system_matrix = Array2::eye(rank);
+    system_matrix += &alpha;
+
+    let coeffs = gauss_method(system_matrix, gamma);
+
+    let step = 0.1;
+    let x_vals: Vec<f32> = (0..=10).map(|i| i as f32 * step).collect();
+    let x_vals_arr = Array1::from_vec(x_vals.clone());
+
+    let mut y_num = Array1::zeros(x_vals.len());
+    for (i, &x) in x_vals.iter().enumerate() {
+        let mut y_val = rhs_func(x, variant);
+        for j in 0..rank {
+            let aj = match j {
+                0 => x,
+                1 => powf(x, 2.0),
+                _ => powf(x, 3.0),
+            };
+            y_val -= coeffs[j] * aj;
+        }
+        y_num[i] = y_val;
+    }
+
+    let y_true = &x_vals_arr * variant;
+    let err = (&y_num - &y_true).mapv(f32::abs);
+
+    (x_vals_arr, y_num, y_true, err)
+}
+
+fn main() {
     let v = 18.0;
-    solve_fredholm_degenerate_correct(v)
+    println!("Вычисление для варианта {}", v as i32);
+
+    let (x, y_calc, y_exact, error) = fredholm_solver(v, 3);
+
+    println!("\nРешение интегрального уравнения Фредгольма (вырожденное ядро)");
+    println!("x:      {}",
+        x.iter()
+         .map(|xi| format!("{:.6}", xi))
+         .collect::<Vec<_>>()
+         .join(" "));
+    println!("y_мет:  {}",
+        y_calc.iter()
+              .map(|yi| format!("{:.6}", yi))
+              .collect::<Vec<_>>()
+              .join(" "));
+    println!("y_точн: {}",
+        y_exact.iter()
+               .map(|yi| format!("{:.6}", yi))
+               .collect::<Vec<_>>()
+               .join(" "));
+    println!("погреш: {}",
+        error.iter()
+             .map(|ei| format!("{:.6}", ei))
+             .collect::<Vec<_>>()
+             .join(" "));
 }
